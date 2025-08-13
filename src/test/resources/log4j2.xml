@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="60">
+
+    <!-- Define reusable properties -->
+    <Properties>
+        <!-- Base directory for logs -->
+        <Property name="basePath">${sys:log.dir:-./logs}</Property>
+    </Properties>
+
+    <!-- Appenders -->
+    <Appenders>
+
+        <!-- Console output -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout 
+                pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"
+                charset="UTF-8"/>
+        </Console>
+
+        <!-- Rolling file output -->
+        <RollingFile name="File" 
+                     fileName="${basePath}/automation.log"
+                     filePattern="${basePath}/automation-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout 
+                pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"
+                charset="UTF-8"/>
+            <Policies>
+                <!-- Roll over daily -->
+                <TimeBasedTriggeringPolicy interval="1" />
+                <!-- Roll over when file exceeds 50MB -->
+                <SizeBasedTriggeringPolicy size="50 MB" />
+            </Policies>
+            <!-- Limit number of archived logs -->
+            <DefaultRolloverStrategy max="7" />
+        </RollingFile>
+
+    </Appenders>
+
+    <!-- Loggers -->
+    <Loggers>
+
+        <!-- Apache HTTP Client - high-level logs -->
+        <Logger name="org.apache.http" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+
+        <!-- Apache HTTP Client - detailed wire logs (headers + body) -->
+        <Logger name="org.apache.http.wire" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+
+        <!-- Your application's root logger -->
+        <Root level="debug">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="File" />
+        </Root>
+
+    </Loggers>
+
+</Configuration>
